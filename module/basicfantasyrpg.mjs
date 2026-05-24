@@ -1,6 +1,7 @@
 // Import document classes.
 import { BasicFantasyRPGActor } from './documents/actor.mjs';
 import { BasicFantasyRPGItem } from './documents/item.mjs';
+import { ACTOR_DATA_MODELS, ITEM_DATA_MODELS } from './documents/data-models.mjs';
 // Import sheet classes.
 import { BasicFantasyRPGActorSheet } from './sheets/actor-sheet.mjs';
 import { BasicFantasyRPGItemSheet } from './sheets/item-sheet.mjs';
@@ -24,6 +25,11 @@ Hooks.once('init', async function() {
 
   // Add custom constants for configuration.
   CONFIG.BASICFANTASYRPG = BASICFANTASYRPG;
+
+  CONFIG.Actor.dataModels ??= {};
+  CONFIG.Item.dataModels ??= {};
+  Object.assign(CONFIG.Actor.dataModels, ACTOR_DATA_MODELS);
+  Object.assign(CONFIG.Item.dataModels, ITEM_DATA_MODELS);
 
   /**
    * Set an initiative formula for the system

@@ -44,12 +44,52 @@
       }
     ]
   },
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": ["biography"]
+      },
+      "monster": {
+        "htmlFields": ["biography"]
+      },
+      "siegeEngine": {
+        "htmlFields": ["biography"]
+      },
+      "stronghold": {
+        "htmlFields": ["biography"]
+      },
+      "vehicle": {
+        "htmlFields": ["biography"]
+      }
+    },
+    "Item": {
+      "item": {
+        "htmlFields": ["description"]
+      },
+      "weapon": {
+        "htmlFields": ["description"]
+      },
+      "armor": {
+        "htmlFields": ["description"]
+      },
+      "spell": {
+        "htmlFields": ["description"]
+      },
+      "feature": {
+        "htmlFields": ["description"]
+      },
+      "floor": {
+        "htmlFields": ["description"]
+      },
+      "wall": {
+        "htmlFields": ["description"]
+      }
+    }
+  },
   "grid": {
     "distance": 5,
     "units": "ft"
   },
-  "gridDistance": 5,
-  "gridUnits": "ft",
   "primaryTokenAttribute": "hitPoints",
   "secondaryTokenAttribute": null,
   "url": "https://github.com/orffen/basicfantasyrpg",

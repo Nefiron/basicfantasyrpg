@@ -31,7 +31,7 @@ export class BasicFantasyRPGActor extends Actor {
    * @override
    * Augment the basic actor data with additional dynamic data. Typically,
    * you'll want to handle most of your calculated/derived data in this step.
-   * Data calculated in this step should generally not exist in template.json
+    * Data calculated in this step should generally not exist in the system data model
    * (such as ability modifiers rather than ability scores) and should be
    * available both inside and outside of character sheets (such as if an actor
    * is queried and has a roll executed directly from it).
@@ -100,9 +100,6 @@ export class BasicFantasyRPGActor extends Actor {
     if (actorData.type !== 'monster') return;
 
     const data = actorData.system;
-
-    // Handle changed label for monster special ability XP bonus -- this will be handled in the system data model when it's implemented
-    data.specialAbility.label = 'BASICFANTASYRPG.SpecialAbilityXPBonus';
 
     data.xp.value = this._calculateMonsterXPValue();
     data.attackBonus.value = this._calculateMonsterAttackBonus();
