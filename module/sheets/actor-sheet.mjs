@@ -280,7 +280,7 @@ export class BasicFantasyRPGActorSheet extends ActorSheet {
     // Get the type of item to create.
     const type = header.dataset.type;
     // Grab any data associated with this control.
-    const data = foundry.utils.duplicate(header.dataset);
+    const data = foundry.utils.deepClone(header.dataset);
     if (type === 'spell') {
       // Move dataset spellLevelValue into spellLevel.value
       data.spellLevel = {
@@ -299,13 +299,14 @@ export class BasicFantasyRPGActorSheet extends ActorSheet {
     const itemData = {
       name: name,
       type: type,
-      data: data
+      system: data
     };
     // Remove the type from the dataset since it's in the itemData.type prop.
-    delete itemData.data['type'];
+    delete itemData.system['type'];
 
     // Finally, create the item!
-    return await Item.create(itemData, {parent: this.actor});
+    const [createdItem] = await this.actor.createEmbeddedDocuments('Item', [itemData]);
+    return createdItem;
   }
 
   /**
@@ -334,7 +335,7 @@ export class BasicFantasyRPGActorSheet extends ActorSheet {
         }
         rollFormula += '+' + item.system.bonusAb.value;
         let roll = new Roll(rollFormula, this.actor.getRollData());
-        roll.toMessage({
+        await roll.toMessage({
           speaker: ChatMessage.getSpeaker({ actor: this.actor }),
           flavor: label,
           rollMode: game.settings.get('core', 'rollMode'),
@@ -354,9 +355,9 @@ export class BasicFantasyRPGActorSheet extends ActorSheet {
     if (dataset.roll) {
       let label = dataset.label ? `<span class="chat-item-name">${game.i18n.localize('BASICFANTASYRPG.Roll')}: ${dataset.label}</span>` : '';
       let roll = new Roll(dataset.roll, this.actor.getRollData());
-      await roll.roll();
+      await roll.evaluate({ async: true });
       label += successChatMessage(roll.total, dataset.targetNumber, dataset.rollUnder);
-      roll.toMessage({
+      await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         flavor: label,
         rollMode: game.settings.get('core', 'rollMode'),

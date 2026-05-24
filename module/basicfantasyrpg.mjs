@@ -127,14 +127,14 @@ Hooks.on("renderDialog", (dialog, html) => {
 
 Hooks.on('createActor', async function(actor) {
   if (actor.type === 'character') {
-    actor.updateSource({
+    await actor.update({
       prototypeToken: {
         actorLink: true,
         disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY
       }
     });
   } else if (actor.type === 'monster') {
-    actor.updateSource({
+    await actor.update({
       prototypeToken: {
         appendNumber: true,
         displayName: CONST.TOKEN_DISPLAY_MODES.OWNER
@@ -154,11 +154,13 @@ Hooks.on('createActor', async function(actor) {
 /* -------------------------------------------- */
 
 Hooks.on('createToken', async function(token, options, id) {
-  if (token.actor.type === 'monster') {
+  if (token.actor?.type === 'monster') {
     let newHitPoints = new Roll(`${token.actor.system.hitDice.number}${token.actor.system.hitDice.size}+${token.actor.system.hitDice.mod}`);
     await newHitPoints.evaluate({ async: true });
-    token.actor.system.hitPoints.value = Math.max(1, newHitPoints.total);
-    token.actor.system.hitPoints.max = Math.max(1, newHitPoints.total);
+    await token.actor.update({
+      'system.hitPoints.value': Math.max(1, newHitPoints.total),
+      'system.hitPoints.max': Math.max(1, newHitPoints.total)
+    });
   }
 });
 
@@ -175,11 +177,11 @@ Hooks.on('createToken', async function(token, options, id) {
  */
 async function createItemMacro(data, slot) {
   if (data.type !== 'Item') return;
-  if (!('data' in data)) return ui.notifications.warn('You can only create macro buttons for owned Items');
-  const item = data.data;
+  const item = await Item.implementation.fromDropData(data);
+  if (!item?.actor) return ui.notifications.warn('You can only create macro buttons for owned Items');
 
   // Create the macro command
-  const command = `game.basicfantasyrpg.rollItemMacro('${item.name}');`;
+  const command = `game.basicfantasyrpg.rollItemMacro('${item.uuid}');`;
   let macro = game.macros.find(m => (m.name === item.name) && (m.command === command));
   if (!macro) {
     macro = await Macro.create({
@@ -197,16 +199,14 @@ async function createItemMacro(data, slot) {
 /**
  * Create a Macro from an Item drop.
  * Get an existing item macro if one exists, otherwise create a new one.
- * @param {string} itemName
+ * @param {string} itemUuid
  * @return {Promise}
  */
-function rollItemMacro(itemName) {
-  const speaker = ChatMessage.getSpeaker();
-  let actor;
-  if (speaker.token) actor = game.actors.tokens[speaker.token];
-  if (!actor) actor = game.actors.get(speaker.actor);
-  const item = actor ? actor.items.find(i => i.name === itemName) : null;
-  if (!item) return ui.notifications.warn(`Your controlled Actor does not have an item named ${itemName}`);
+async function rollItemMacro(itemUuid) {
+  const item = await fromUuid(itemUuid);
+  if (!(item instanceof Item) || !item.actor) {
+    return ui.notifications.warn('This item macro is no longer valid. Please drag the item to your hotbar again.');
+  }
 
   // Trigger the item roll
   return item.roll();
