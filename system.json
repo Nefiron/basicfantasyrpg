@@ -35,6 +35,15 @@
       "path": "lang/fr.json"
     }
   ],
+  "relationships": {
+    "recommends": [
+      {
+        "id": "basicfantasyrpg-corerules-en",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/Stew-rt/basicfantasyrpg-corerules-en/main/module.json"
+      }
+    ]
+  },
   "grid": {
     "distance": 5,
     "units": "ft"
